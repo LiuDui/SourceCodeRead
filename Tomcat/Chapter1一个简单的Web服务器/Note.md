@@ -264,3 +264,5 @@ Accept-Language: zh-CN,zh;q=0.9
 到此，一个简陋的服务器就算是跑起来了。
 再测试一下传文件的功能，分别测试了图片，文本，html文件，在谷歌浏览器上没有成功在页面显示，但是在windows10的Edge上正确显示，下面是图片的显示:
 ![图片](./imgs/testimg.png)
+
+最后测试`SHUTDOWN`请求，浏览器输入`http://localhost:8080/SHUTDOWN`，服务端程序正确关闭。

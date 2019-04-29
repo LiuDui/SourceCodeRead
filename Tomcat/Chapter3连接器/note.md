@@ -47,4 +47,26 @@ String name = manger.getString("name");
 * 核心模块
   > ServletProcesstor和StaticResourceProcesstor
 
-#### 与第二章的对比
+UML类图
+![类图](./imgs/one.png)
+
+`HttpServer`被分成了`HttpConnector`和`HttpProcessor`两个类，`Response`和`Request`类被`HttpResponse`和`HttpRequest`代替。
+
+`HttpConnector`负责等待Http请求，`HttpProcessor`负责创建`Request`和`Response`对象。
+
+连接器需要从Http中解析各种属性，但是servlet并那不一定会用到这些参数，所以采用延迟的方式：**在真正调用前不会解析**，获得更好的性能。
+
+#### 启动应用程序
+通过`ex03.pyrmont.startup.Bootstrap`类启动。
+```java
+package ex03.pyrmont.startup;
+
+import ex03.pyrmont.connector.http.HttpConnector;
+public class Bootstrap {
+    public static void main(String[] args) {
+        HttpConnector connector = new HttpConnector();
+        connector.start();
+    }
+}
+```
+在主函数中实例化`HttpConnector`类，调用`start()`方法，`HttpConnector`负责连接，定能如下：

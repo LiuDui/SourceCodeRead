@@ -69,4 +69,43 @@ public class Bootstrap {
     }
 }
 ```
-在主函数中实例化`HttpConnector`类，调用`start()`方法，`HttpConnector`负责连接，定能如下：
+在主函数中实例化`HttpConnector`类，调用`start()`方法，`HttpConnector`负责连接，定义如下：
+```java
+public class HttpConnector implements Runnable{
+    boolean stopped;
+    private String scheme = "http";
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public void start() {
+        Thread thread = new Thread(this);
+        thread.start();
+    }
+
+    @Override
+    public void run() {
+        ServerSocket serverSocket = null;
+        try {
+            serverSocket = new ServerSocket(NetConfig.PORT, 1, InetAddress.getByName(NetConfig.LOACAL_HOST));
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        while (!stopped){
+            // 接受请求
+            Socket socket = null;
+            try {
+                socket = serverSocket.accept();
+            } catch (IOException e) {
+                continue;
+            }
+            // 处理请求
+            HttpProcessor processor = new HttpProcessor(this);
+            processor.process(socket);
+        }
+    }
+}
+```

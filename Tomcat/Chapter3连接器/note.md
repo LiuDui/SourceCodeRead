@@ -37,7 +37,7 @@ String name = manger.getString("name");
 ### 应用程序
 应用按模块划分为：连接器模块、启动模块、核心模块：
 * 连接器模块
-  > * 连接器机器支持类（HttpConnector和HttpProcessor）
+  > * 连接器及其支持类（HttpConnector和HttpProcessor）
   * 表示Http请求类（HttpRequest）及其支持类
   * 表示Http响应类(HttpResponse)及其支持类
   * 外观类（HttpRequestFacade和HttpResponseFacade）
@@ -69,7 +69,11 @@ public class Bootstrap {
     }
 }
 ```
-在主函数中实例化`HttpConnector`类，调用`start()`方法，`HttpConnector`负责连接，定义如下：
+在主函数中实例化`HttpConnector`类，调用`start()`方法，`HttpConnector`负责连接。
+
+#### HttpConnector类
+
+定义如下：
 ```java
 public class HttpConnector implements Runnable{
     boolean stopped;
@@ -109,3 +113,60 @@ public class HttpConnector implements Runnable{
     }
 }
 ```
+`ex03.pyrmont.connector.http.HttpConnector`类的实例，实现了`java.lang.Runnable`接口，在`run()`方法中，负责创建一个服务器套接字，并循环等待连接。调用其`start()`方法会创建一个线程运行该Runnable的子类。
+
+在`run()`方法的`while(...){...}`循环中，执行以下操作：
+* 等待Http请求
+* 为每个Http请求创建一个`HttpProcessor`实例
+* 调用`HttpProcessor`对象的`process()`方法
+
+#### `HttpProcessor`类
+`HttpProcessor`类在创建时，传入的参数有两个：
+* 服务端套接字接收到的socket的实例
+* HttpConnector类的实例（这个实例目前只有一个）
+而在该类中完成以下几件事：
+* 创建一个HttpRequest对象和一个HttpResponse对象（因为传入了socket，所以可以读取数据）
+* 解析HTTP请求的第一行内容和请求头信息，填充HttpRequest对象
+* 将HttpRequest对象和HttpResponse对象传递给ServletProcessor或StaticResourceProcessor的`service()`方法。
+
+每个连接都会创建一个`HttpProcessor`对象，该对象有`HttpRequest`何`HttpResponse`的引用，因此可以在`HttpProcessor`中实现对请求的解析。
+
+#### 创建HttpRequest对象
+`HttpRequest`类实现了`javax.servlet.http.HttpServletRequest`类，并通过 外观类 `HttpRequestFaced`实现门面模式，实现对类内方法的保护（同上一章）。
+
+HttpRequest对象其实就是将http报文解析管理的类，可以理解为http参数的容器。
+
+在书中，将http请求参数分为三类进行分别存储：
+
+* 请求头的信息，存储在 `protected HashMap Header = new HashMap();`中；
+* Cookie，存储在`protected ArrayList cookies = new ArrayList();`中
+* 请求参数，存储在`protected ParameterMap Parameters = null;`中。
+
+通过集合类存储解析后的信息，就可以调用方法的得到各种属性值了，所所以主要工作是解析HTTP请用于填充HttpRequest对象。
+
+对每个请求头和Cookie，HttpRequest类都提供了`addHeader()`和`addCookie()`方法类填充相关信息，这两个方法会又`HttpProcessor`的`parseHeaders()`方法来调用。当真正需要参请求参数时，才会使用`HttpRequest`的` parseParameters()`方法解析请求参数。
+
+本部分主要包含以下内容：
+
+*  读取套接字的输入流
+* 解析请求行
+* 解析请求头
+* 解析Cookie
+* 获取参数
+
+1. 读取套接字的输入流
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+我爱你  快学习！！！！
